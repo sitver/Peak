@@ -1,0 +1,177 @@
+<html>
+<body>
+  <script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+<style>
+.ball{position: absolute; top: 0; left: 0; background-color: red; height: 20px; width: 20px; border-radius: 20px}
+#deflector{transform: rotate(0deg); position: absolute; top: 300; left: 50; background-color: brown; height: 30px; width: 70px; border-radius: 6px}
+#scoreContainer{position: absolute; top: 420px; left: 50px;}
+#peakContainer{position: absolute; top: 470px; left: 50px;}
+#resume{border: 0; background-color: red; color: white; padding: 5px; position: absolute; top: 20px; left: 200px;}
+.borderWall {position: absolute; top: 0; left: 300px; background-color: black; width: 5px; height: 400px;}
+.bwleft  {position: absolute; top: 0; left: 0px; background-color: black; width: 5px; height: 400px;}
+.bwbottom  {position: absolute; top: 400px; left: 0px; background-color: black; width: 300px; height: 5px;}
+
+</style>
+<h1 style = "position: absolute; top: 40px; color: darkgrey; left: 50px">PEAK</h1>
+<h1 id = "scoreContainer">Score: <span id = "score"></span></h1>
+<h1 id = "peakContainer">Peak: <span id = "peak"></span></h1>
+<div id = "game">
+
+</div>
+<div draggable = "true" id = "deflector"></div>
+</div>
+<div class = "borderWall"></div>
+<div class = "bwleft"></div>
+<div class = "bwbottom"></div>
+<button id = "resume" onclick = "resume()">Pause/Resume</button>
+<script>
+/*
+Todo:
+- Collision detection
+- Mouse movement
+
+*/
+
+var score = 0;
+var pause = 0;
+var mcx = 0;
+var mcy = 0;
+var clockInt = 100; //Decrease to make game more difficult
+var gamewidth = 300;
+var gameheight = 400;
+$(document).on('mousemove', function(e){
+    $('#deflector').css({
+       left:  e.pageX,
+       top:   e.pageY
+    });
+    mcx = e.pageX;
+    mcy = e.pageY;
+});
+var g = 10
+var clock = 0
+var peak = 0;
+var multiplier = 1;
+var ball1 = {vy: 4, vx: 20, top: 0, left: 0, status: "right", color: "red"}
+var ball2 = {vy: 4, vx: 15, top: -20, left: 100, status: "left", color: "blue"}
+var balls = [ball1, ball2]
+function boom(n){
+  //document.getElementsByClassName('ball')[n].style.top = 0;
+}
+console.log("Making ball move")
+function resetBalls(){
+  document.getElementById('game').innerHTML = ""
+  console.log("Resetting balls")
+  for(i = 0; i < balls.length; i++){
+    var num = i
+  document.getElementById('game').innerHTML = document.getElementById('game').innerHTML + `<div class = "ball" style = "background-color: ${balls[i].color}">
+    </div>`
+  }
+}
+for(i = 0; i < balls.length; i++){
+
+  var num = i
+document.getElementById('game').innerHTML = document.getElementById('game').innerHTML + `<div class = "ball" style = "background-color: ${balls[i].color}">
+  </div>`
+document.getElementsByClassName('ball')[i].addEventListener("mouseover", function( event ) {
+    // highlight the mouseover target
+    console.log("Ball hit")
+    //console.log(i)
+  boom(num);
+  }, false);
+}
+setInterval(function(){
+if(score > 1500){
+  var sheetToBeRemoved = document.getElementById('styleSheetId');
+  var sheetParent = sheetToBeRemoved.parentNode;
+  sheetParent.removeChild(sheetToBeRemoved);
+
+  var sheet = document.createElement('style')
+sheet.innerHTML = ".ball{}"; //Make balls pulse
+document.body.appendChild(sheet);
+}
+
+if(score > peak){
+  peak = score
+  document.getElementById('peak').innerHTML = peak
+}
+if(pause != 1){
+  if(score < 0){
+    balls = balls.splice(0,2)
+    score = 0;
+    resetBalls()
+    resume()
+        setTimeout(function(){document.getElementById('score').innerHTML = "YOU LOSE"}, 40)
+    //pause = 1;
+   }
+  clock = clock + 1;
+  //console.log(clock)
+  if(clock > clockInt ||( clock > clockInt/3 && score > 1000))
+  {
+    clock = 0;
+    console.log("Releasing new ball")
+  var colors = ["red", "lightblue", "lightred", "blue", "green", "yellow", "orange", "maroon", "purple", "black"]
+  var color = Math.floor(Math.random() * colors.length);
+console.log(color + ": " + colors[color])
+  balls[balls.length] = {vy: 6, vx: 25, top: 0, left: 60, status: "left", color: colors[color]};
+  document.getElementById('game').innerHTML = document.getElementById('game').innerHTML + `<div class = "ball" style = "background-color: ${balls[balls.length - 1].color}"></div>`
+  }
+for(i = 0; i < balls.length; i++){
+  if(mcx > balls[i].left - 35 && mcx < balls[i].left + 35 && mcy > balls[i].top - 35 && mcy < balls[i].top + 35){
+    console.log("BOOOM!")
+    var offset = Math.floor(Math.random() * 20) - 10;
+    balls[i].left = balls[i].left + offset;
+    balls[i].top = balls[i].top - 6;
+    balls[i].vy = -70;
+    balls[i].status = "right"
+    score = score + 5;
+  }
+  if(balls[i].left > gamewidth){
+  balls[i].status = "left";
+  }
+
+  if(balls[i].left < 1){
+  balls[i].status = "right"
+  }
+  if(balls[i].status == "left"){
+    balls[i].left = balls[i].left - (multiplier* balls[i].vx/20)
+  }
+  if(balls[i].status == "right"){
+    balls[i].left = balls[i].left + (multiplier* balls[i].vx/20)
+  }
+  if(parseInt(document.getElementsByClassName('ball')[i].style.top.split("px")[0]) > gameheight){
+      console.log("Resetting ball: " + document.getElementsByClassName('ball')[i].style.top)
+      balls[i].vy = 12
+    if(g < 40) { g = g * 2}
+      score = score - 100;
+balls[i].top = 0;
+
+  //
+  }
+  balls[i].vy = balls[i].vy + g/20
+  balls[i].top = balls[i].top + (multiplier *(balls[i].vy)/20)
+  //console.log("Left: " + left + " Top: " + top)
+  //console.log("Top: " + balls[i].top)
+  document.getElementsByClassName('ball')[i].style.top = balls[i].top + "px"// /20;
+  document.getElementsByClassName('ball')[i].style.left = balls[i].left  + "px"
+}
+document.getElementById('score').innerHTML = score
+}else{
+  console.log("Paused")
+}
+},20)
+function resume(){
+
+  if(pause == 1){
+      console.log("Pause is " + pause + ". Unpausing")
+    pause = 0;
+  } else if(pause != 1){
+        console.log("Pause is " + pause + ". Pausing")
+    pause = 1
+  }
+}
+</script>
+</body>
+<html>
