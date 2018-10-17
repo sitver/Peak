@@ -9,7 +9,7 @@
 #deflector{transform: rotate(0deg); position: absolute; top: 300; left: 50; background-color: brown; height: 30px; width: 70px; border-radius: 6px}
 #scoreContainer{position: absolute; top: 420px; left: 50px;}
 #peakContainer{position: absolute; top: 470px; left: 50px;}
-#resume{border: 0; background-color: red; color: white; padding: 5px; position: absolute; top: 20px; left: 200px;}
+#resume{border: 0; background-color: red; color: white; padding: 5px; position: absolute; top: 480px; left: 150px;}
 .borderWall {position: absolute; top: 0; left: 300px; background-color: black; width: 5px; height: 400px;}
 .bwleft  {position: absolute; top: 0; left: 120px; background-color: black; width: 5px; height: 400px;}
 .bwbottom  {position: absolute; top: 400px; left: 120px; background-color: black; width: 180px; height: 5px;}
@@ -78,40 +78,17 @@ placed[placed.length - 1].left = 160;
 
 document.getElementById('game').innerHTML = document.getElementById('game').innerHTML + piece.template
 console.log(document.getElementsByClassName('piece').length)
-setInterval(function(){
+var test = setInterval(function(){
+  if(placed[placed.length - 1].top < 380){ /// Define blocked
   placed[placed.length - 1].top = placed[placed.length - 1].top + 20
+}else{
+  // BUG: Close interval
+  clearInterval(test);
+  nextBlock()
+}
 document.getElementsByClassName('piece')[document.getElementsByClassName('piece').length - 1].style.top =  placed[placed.length - 1].top
 },200)
-
-}
-nextBlock()
-var score = 0;
-var pause = 0;
-var mcx = 0;
-var mcy = 0;
-var clockInt = 200; //Decrease to make game more difficult
-var gamewidth = 180;
-
-var g = 10
-var clock = 0
-
-
-
-/*
-Steps:
-- Recreate blocks - Done
-- Recreate board - Done
-- Array of final block placement
-- Gravity
-- Block selection/generation
-- Stacking
-- Scoring
-- Game over detection
-- Gravity when a line is cleared.
-- Speed up as score rises
-
-*/
-var current = document.getElementsByClassName('pointy')[0]
+var current = document.getElementsByClassName('piece')[document.getElementsByClassName('piece').length - 1]
 var rotation = 0;
 var fromTop = 0
 var fromLeft = 200;
@@ -152,6 +129,35 @@ $(document).keydown(function(e) {
     }
     e.preventDefault(); // prevent the default action (scroll / move caret)
 });
+}
+nextBlock()
+var score = 0;
+var pause = 0;
+var mcx = 0;
+var mcy = 0;
+var clockInt = 200; //Decrease to make game more difficult
+var gamewidth = 180;
+
+var g = 10
+var clock = 0
+
+
+
+/*
+Steps:
+- Recreate blocks - Done
+- Recreate board - Done
+- Array of final block placement
+- Gravity
+- Block selection/generation
+- Stacking
+- Scoring
+- Game over detection
+- Gravity when a line is cleared.
+- Speed up as score rises
+
+*/
+
 </script>
 </body>
 <html>
