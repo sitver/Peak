@@ -26,7 +26,6 @@
 <!--h1 id = "peakContainer">Peak: <span id = "peak"></span></h1-->
 <div id = "game">
 
-<!--div draggable = "true" id = "deflector"></div-->
 </div>
 <div class = "borderWall"></div>
 <div class = "bwleft"></div>
@@ -66,20 +65,37 @@ var leftElbow = `<div class = "LeftElbow piece">
 </div>`
 var pieces = [{template: line}, {template: pointy},{template: cube},{template: rightElbow},{template: leftElbow}]
 var placed = []
+function stop(){
+  for(i = 0; i < document.getElementsByClassName('box').length - 5; i++){
+    for(a = 1; a < 5; a++){
+        if( document.getElementsByClassName('box')[ document.getElementsByClassName('box').length - a].style.left ==  document.getElementsByClassName('box')[i].style.left || document.getElementsByClassName('box')[ document.getElementsByClassName('box').length - a].style.left ==  document.getElementsByClassName('box')[i].style.left){
+          console.log( "Y Axis match")
+          if(document.getElementsByClassName('box')[ document.getElementsByClassName('box').length - a].style.top + 20 >=  document.getElementsByClassName('box')[i].style.top){
+            console.log("Height match")
+          return true
+        }
+      }
+
+    }
+  }
+}
 function nextBlock(){
+
+
+var blocked = false
+
 var pieceN = Math.floor(Math.random() * pieces.length)
 var piece = pieces[pieceN]
 placed[placed.length] = {template: piece.template }
 placed[placed.length - 1].top = -20;
-
 placed[placed.length - 1].left = 160;
 
-//console.log(pieceN)
-
-document.getElementById('game').innerHTML = document.getElementById('game').innerHTML + piece.template
-console.log(document.getElementsByClassName('piece').length)
+document.getElementById('game').innerHTML = document.getElementById('game').innerHTML +  pieces[pieceN].template
+//console.log(document.getElementsByClassName('piece').length)
 var test = setInterval(function(){
-  if(placed[placed.length - 1].top < 380){ /// Define blocked
+  ///Detect overlap in next move
+  ///
+  if(placed[placed.length - 1].top < 50 ||(!stop() && placed[placed.length - 1].top < 380)){ /// Define blocked
   placed[placed.length - 1].top = placed[placed.length - 1].top + 20
 }else{
   // BUG: Close interval
@@ -121,7 +137,7 @@ $(document).keydown(function(e) {
 
         case 40: // down
         fromTop = fromTop + 30;
-        console.log(fromTop)
+        //console.log(fromTop)
         current.style.top = fromTop + "px"
         break;
 
