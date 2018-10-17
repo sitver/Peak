@@ -1,0 +1,157 @@
+<html>
+<body>
+  <script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+<style>
+.ball{position: absolute; top: 0; left: 0; background-color: red; height: 20px; width: 20px; border-radius: 20px}
+#deflector{transform: rotate(0deg); position: absolute; top: 300; left: 50; background-color: brown; height: 30px; width: 70px; border-radius: 6px}
+#scoreContainer{position: absolute; top: 420px; left: 50px;}
+#peakContainer{position: absolute; top: 470px; left: 50px;}
+#resume{border: 0; background-color: red; color: white; padding: 5px; position: absolute; top: 20px; left: 200px;}
+.borderWall {position: absolute; top: 0; left: 300px; background-color: black; width: 5px; height: 400px;}
+.bwleft  {position: absolute; top: 0; left: 120px; background-color: black; width: 5px; height: 400px;}
+.bwbottom  {position: absolute; top: 400px; left: 120px; background-color: black; width: 180px; height: 5px;}
+.box {position: relative; border-color: darkgreen; background-color: green; width: 20px; height: 20px;}
+#class {position: absolute; top: 0; left: 0; width: 300px; height: 400px}
+.line {position: absolute; top: 0; left: 0}
+.cube {position: absolute; top: 80; left: 100}
+.pointy {transform: rotate(90deg); position: absolute; top: 100; left: 50}
+.rightElbow {position: absolute; top: 200; left: 50}
+.leftElbow {position: absolute; top: 250; left: 100}
+</style>
+<h1 style = "display: none; position: absolute; top: 40px; color: darkgrey; left: 50px">PEAK</h1>
+<h1 id = "scoreContainer">Score: <span id = "score"></span></h1>
+<!--h1 id = "peakContainer">Peak: <span id = "peak"></span></h1-->
+<div id = "game">
+<div class = "line">
+  <div class = "box"></div>
+  <div class = "box"></div>
+  <div class = "box"></div>
+  <div class = "box"></div>
+</div>
+<div class = "pointy">
+  <div style = "position: absolute; background-color: red; left: 0" class = "box"></div>
+  <div style = "position: absolute; background-color: red; left: 20" class = "box"></div>
+  <div style = "position: absolute; background-color: red; left: 20; top: -20" class = "box"></div>
+  <div style = "position: absolute; background-color: red; left: 40" class = "box"></div>
+</div>
+<div class = "cube">
+  <div style = "position: absolute; background-color: blue; left: 0" class = "box"></div>
+  <div style = "position: absolute; background-color: blue; left: 20" class = "box"></div>
+  <div style = "position: absolute; background-color: blue; left: 20; top: -20" class = "box"></div>
+  <div style = "position: absolute; background-color: blue; left: 0; top: -20" class = "box"></div>
+</div>
+<div class = "rightElbow">
+  <div style = "position: absolute; background-color: orange; left: 0" class = "box"></div>
+  <div style = "position: absolute; background-color: orange; left: 0; top: -20" class = "box"></div>
+  <div style = "position: absolute; background-color: orange; left: 0; top: -40" class = "box"></div>
+  <div style = "position: absolute; background-color: orange; left: 20; top: -40" class = "box"></div>
+</div>
+<div class = "LeftElbow">
+  <div style = "position: absolute; background-color: purple; left: 0" class = "box"></div>
+  <div style = "position: absolute; background-color: purple; left: 0; top: -20" class = "box"></div>
+  <div style = "position: absolute; background-color: purple; left: 0; top: -40" class = "box"></div>
+  <div style = "position: absolute; background-color: purple; left: -20; top: -40" class = "box"></div>
+</div>
+<!--div draggable = "true" id = "deflector"></div-->
+</div>
+<div class = "borderWall"></div>
+<div class = "bwleft"></div>
+<div class = "bwbottom"></div>
+<button id = "resume" onclick = "resume()">Pause/Resume</button>
+<script>
+/*
+Todo:
+- Collision detection
+- Mouse movement
+
+*/
+
+var score = 0;
+var pause = 0;
+var mcx = 0;
+var mcy = 0;
+var clockInt = 200; //Decrease to make game more difficult
+var gamewidth = 180;
+var gameheight = 400;
+/*$(document).on('mousemove', function(e){
+    $('#deflector').css({
+       left:  e.pageX,
+       top:   e.pageY
+    });
+    mcx = e.pageX;
+    mcy = e.pageY;
+});*/
+var g = 10
+var clock = 0
+
+function boom(n){
+  //document.getElementsByClassName('ball')[n].style.top = 0;
+}
+console.log("Making ball move")
+function resetBalls(){
+  document.getElementById('game').innerHTML = ""
+  console.log("Resetting balls")
+  for(i = 0; i < balls.length; i++){
+    var num = i
+  document.getElementById('game').innerHTML = document.getElementById('game').innerHTML + `<div class = "ball" style = "background-color: ${balls[i].color}">
+    </div>`
+  }
+}
+/*
+Steps:
+- Recreate blocks - Done
+- Recreate board - Done
+- Array of final block placement
+- Gravity
+- Block selection/generation
+- Stacking
+
+
+*/
+var current = document.getElementsByClassName('pointy')[0]
+var rotation = 0;
+var fromTop = 0
+var fromLeft = 200;
+$(document).keydown(function(e) {
+    switch(e.which) {
+        case 37: // left
+        if(fromLeft > 160){
+        fromLeft = fromLeft - 20;
+      }else{
+        fromLeft = 140
+      }
+      current.style.left = fromLeft;
+
+        break;
+
+        case 38: // up
+        rotation = rotation - 90;
+
+        current.style.transform = `rotate(${rotation}deg)`
+        break;
+
+        case 39: // right
+        if(fromLeft < 260){
+        fromLeft = fromLeft + 20;
+      }else{
+        fromLeft = 280
+      }
+            current.style.left = fromLeft;
+        break;
+
+        case 40: // down
+        fromTop = fromTop + 30;
+        console.log(fromTop)
+        current.style.top = fromTop + "px"
+        break;
+
+        default: return; // exit this handler for other keys
+    }
+    e.preventDefault(); // prevent the default action (scroll / move caret)
+});
+</script>
+</body>
+<html>
