@@ -5,23 +5,18 @@
   integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
   crossorigin="anonymous"></script>
 <style>
-.ball{position: absolute; top: 0; left: 0; background-color: red; height: 20px; width: 20px; border-radius: 20px}
-#deflector{transform: rotate(0deg); position: absolute; top: 300; left: 50; background-color: brown; height: 30px; width: 70px; border-radius: 6px}
-#scoreContainer{position: absolute; top: 420px; left: 50px;}
-#peakContainer{position: absolute; top: 470px; left: 50px;}
-#resume{border: 0; background-color: red; color: white; padding: 5px; position: absolute; top: 480px; left: 150px;}
-.borderWall {position: absolute; top: 0; left: 300px; background-color: black; width: 5px; height: 400px;}
-.bwleft  {position: absolute; top: 0; left: 120px; background-color: black; width: 5px; height: 400px;}
-.bwbottom  {position: absolute; top: 400px; left: 120px; background-color: black; width: 180px; height: 5px;}
-.box {position: relative; border-color: darkgreen; background-color: green; width: 20px; height: 20px;}
-#class {position: absolute; top: 0; left: 0; width: 300px; height: 400px}
-.line {z-index: 200; position: absolute; top: -20; left: 160}
-.cube {z-index: 200; position: absolute; top: -20; left: 160}
-.pointy {z-index: 200; transform: rotate(90deg); position: absolute; top: -20; left: 160}
-.rightElbow {z-index: 200; position: absolute; top: -20; left: 160}
-.leftElbow {z-index: 200; position: absolute; top: -20; left: 160}
+#scoreContainer{position: absolute; top: 550px; left: 50px;}
+#resume{border: 0; background-color: red; color: white; padding: 5px; position: absolute; top: 620px; left: 150px;}
+.borderWall {position: absolute; top: 0; left: 365px; background-color: black; width: 8px; height: 500px;}
+.bwleft  {position: absolute; top: 0; left: 0px; background-color: black; width: 8px; height: 500px;}
+.bwbottom  {position: absolute; top: 505px; left: 0px; background-color: black; width: 365px; height: 8px;}
+.box { border-color: darkgreen; background-color: green; width: 30px; height: 30px;}
+.line {z-index: 200; position: absolute; top: -30; left: 80}
+.cube {z-index: 200; position: absolute; top: -30; left: 80}
+.pointy {z-index: 200; transform: rotate(90deg); position: absolute; top: -30; left: 80}
+.rightElbow {z-index: 200; position: absolute; top: -30; left: 80}
+.leftElbow {z-index: 200; position: absolute; top: -30; left: 80}
 </style>
-<h1 style = "display: none; position: absolute; top: 40px; color: darkgrey; left: 50px">PEAK</h1>
 <h1 id = "scoreContainer">Score: <span id = "score"></span></h1>
 <!--h1 id = "peakContainer">Peak: <span id = "peak"></span></h1-->
 <div id = "game">
@@ -32,52 +27,58 @@
 <div class = "bwbottom"></div>
 <button id = "resume" onclick = "resume()">Pause/Resume</button>
 <script>
-
+var gameWidth = 360;
+var clockInt = 400; //Decrease to make game more difficult
 var line = `<div class = "line piece">
-  <div class = "box"></div>
-  <div class = "box"></div>
-  <div class = "box"></div>
-  <div class = "box"></div>
+  <div style = "bottom: 0" class = "box"></div>
+  <div style = "bottom: 30" class = "box"></div>
+  <div style = "bottom: 60" class = "box"></div>
+  <div style = "bottom: 90" class = "box"></div>
 </div>`
+/*
+360 = 30 * 12
+500 = 30 * 16
+*/
 var pointy = `<div class = "pointy piece">
-  <div style = "position: absolute; background-color: red; left: 0" class = "box"></div>
-  <div style = "position: absolute; background-color: red; left: 20" class = "box"></div>
-  <div style = "position: absolute; background-color: red; left: 20; top: -20" class = "box"></div>
-  <div style = "position: absolute; background-color: red; left: 40" class = "box"></div>
+  <div style = "position: absolute; background-color: red; left: 0; bottom: 0" class = "box"></div>
+  <div style = "position: absolute; background-color: red; left: 30; bottom: 30" class = "box"></div>
+  <div style = "position: absolute; background-color: red; left: 30; bottom: 0" class = "box"></div>
+  <div style = "position: absolute; background-color: red; left: 60; bottom: 0" class = "box"></div>
 </div>`
 var cube = `<div class = "cube piece">
-  <div style = "position: absolute; background-color: blue; left: 0" class = "box"></div>
-  <div style = "position: absolute; background-color: blue; left: 20" class = "box"></div>
-  <div style = "position: absolute; background-color: blue; left: 20; top: -20" class = "box"></div>
-  <div style = "position: absolute; background-color: blue; left: 0; top: -20" class = "box"></div>
+  <div style = "position: absolute; background-color: blue; left: 0; bottom: 0" class = "box"></div>
+  <div style = "position: absolute; background-color: blue; left: 30; bottom: 30;" class = "box"></div>
+  <div style = "position: absolute; background-color: blue; left: 0; bottom: 30" class = "box"></div>
+  <div style = "position: absolute; background-color: blue; left: 30; bottom: 0" class = "box"></div>
 </div>`
 var rightElbow = `<div class = "rightElbow piece">
-  <div style = "position: absolute; background-color: orange; left: 0" class = "box"></div>
-  <div style = "position: absolute; background-color: orange; left: 0; top: -20" class = "box"></div>
-  <div style = "position: absolute; background-color: orange; left: 0; top: -40" class = "box"></div>
-  <div style = "position: absolute; background-color: orange; left: 20; top: -40" class = "box"></div>
+  <div style = "position: absolute; background-color: orange; left: 0; bottom: 0" class = "box"></div>
+  <div style = "position: absolute; background-color: orange; left: 0; bottom: 30" class = "box"></div>
+  <div style = "position: absolute; background-color: orange; left: 0; bottom: 60" class = "box"></div>
+  <div style = "position: absolute; background-color: orange; left: 30; bottom: 60" class = "box"></div>
 </div>`
 var leftElbow = `<div class = "LeftElbow piece">
-  <div style = "position: absolute; background-color: purple; left: 0" class = "box"></div>
-  <div style = "position: absolute; background-color: purple; left: 0; top: -20" class = "box"></div>
-  <div style = "position: absolute; background-color: purple; left: 0; top: -40" class = "box"></div>
-  <div style = "position: absolute; background-color: purple; left: -20; top: -40" class = "box"></div>
+  <div style = "position: absolute; background-color: purple; left: 0; bottom: 0" class = "box"></div>
+  <div style = "position: absolute; background-color: purple; left: 0; bottom: 30" class = "box"></div>
+  <div style = "position: absolute; background-color: purple; left: 0; bottom: 60" class = "box"></div>
+  <div style = "position: absolute; background-color: purple; left: -30; bottom: 60" class = "box"></div>
 </div>`
 var pieces = [{template: line}, {template: pointy},{template: cube},{template: rightElbow},{template: leftElbow}]
 var placed = []
 function stop(){
-  for(i = 0; i < document.getElementsByClassName('box').length - 5; i++){
+  /*
+  for(i = 0; i < document.getElementsByClassName('parked').length; i++){
     for(a = 1; a < 5; a++){
-        if( document.getElementsByClassName('box')[ document.getElementsByClassName('box').length - a].style.left ==  document.getElementsByClassName('box')[i].style.left || document.getElementsByClassName('box')[ document.getElementsByClassName('box').length - a].style.left ==  document.getElementsByClassName('box')[i].style.left){
+        if( document.getElementsByClassName('box')[ document.getElementsByClassName('box').length - a].style.left ==  document.getElementsByClassName('box')[i].style.left){
           console.log( "Y Axis match")
-          if(document.getElementsByClassName('box')[ document.getElementsByClassName('box').length - a].style.top + 20 >=  document.getElementsByClassName('box')[i].style.top){
+          if(document.getElementsByClassName('box')[ document.getElementsByClassName('box').length - a].style.top + 30 >=  document.getElementsByClassName('box')[i].style.top  ){
             console.log("Height match")
           return true
         }
       }
 
     }
-  }
+  }*/
 }
 function nextBlock(){
 
@@ -87,36 +88,34 @@ var blocked = false
 var pieceN = Math.floor(Math.random() * pieces.length)
 var piece = pieces[pieceN]
 placed[placed.length] = {template: piece.template }
-placed[placed.length - 1].top = -20;
-placed[placed.length - 1].left = 160;
+placed[placed.length - 1].top = -30;
+placed[placed.length - 1].left = 80;
 
 document.getElementById('game').innerHTML = document.getElementById('game').innerHTML +  pieces[pieceN].template
 //console.log(document.getElementsByClassName('piece').length)
 var test = setInterval(function(){
   ///Detect overlap in next move
   ///
-  if(placed[placed.length - 1].top < 50 ||(!stop() && placed[placed.length - 1].top < 380)){ /// Define blocked
-  placed[placed.length - 1].top = placed[placed.length - 1].top + 20
+  if(placed[placed.length - 1].top <= 30 ||(placed[placed.length - 1].top > 30 && !stop() && placed[placed.length - 1].top < 500)){ /// Define blocked
+  placed[placed.length - 1].top = placed[placed.length - 1].top + 30
 }else{
   // BUG: Close interval
+  $('.piece:last').children("div").addClass( "parked");
   clearInterval(test);
   nextBlock()
 }
 document.getElementsByClassName('piece')[document.getElementsByClassName('piece').length - 1].style.top =  placed[placed.length - 1].top
-},200)
 var current = document.getElementsByClassName('piece')[document.getElementsByClassName('piece').length - 1]
 var rotation = 0;
-var fromTop = 0
-var fromLeft = 200;
 $(document).keydown(function(e) {
     switch(e.which) {
         case 37: // left
-        if(fromLeft > 160){
-        fromLeft = fromLeft - 20;
+        if( placed[placed.length - 1].left > 30){
+         placed[placed.length - 1].left = placed[placed.length - 1].left - 30
       }else{
-        fromLeft = 140
+         placed[placed.length - 1].left = 0
       }
-      current.style.left = fromLeft;
+      current.style.left = placed[placed.length - 1].left;
 
         break;
 
@@ -127,32 +126,34 @@ $(document).keydown(function(e) {
         break;
 
         case 39: // right
-        if(fromLeft < 260){
-        fromLeft = fromLeft + 20;
+        if( placed[placed.length - 1].left < 365){
+         placed[placed.length - 1].left =  placed[placed.length - 1].left + 30;
       }else{
-        fromLeft = 280
+         placed[placed.length - 1].left = 365
       }
-            current.style.left = fromLeft;
+            current.style.left = placed[placed.length - 1].left;
         break;
 
         case 40: // down
-        fromTop = fromTop + 30;
+        placed[placed.length - 1].top = placed[placed.length - 1].top + 30;
         //console.log(fromTop)
-        current.style.top = fromTop + "px"
+        current.style.top = placed[placed.length - 1].top + "px"
         break;
 
         default: return; // exit this handler for other keys
     }
     e.preventDefault(); // prevent the default action (scroll / move caret)
 });
+},clockInt)
 }
+function resume(){
 nextBlock()
+}
 var score = 0;
 var pause = 0;
 var mcx = 0;
 var mcy = 0;
-var clockInt = 200; //Decrease to make game more difficult
-var gamewidth = 180;
+
 
 var g = 10
 var clock = 0
