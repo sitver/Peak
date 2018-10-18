@@ -16,24 +16,33 @@
 .pointy {z-index: 200; transform: rotate(90deg); position: absolute; top: -30; left: 80}
 .rightElbow {z-index: 200; position: absolute; top: -30; left: 80}
 .leftElbow {z-index: 200; position: absolute; top: -30; left: 80}
+.placed{position: absolute; right: 8; top: 5; top: 500!important}
 </style>
 <h1 id = "scoreContainer">Score: <span id = "score"></span></h1>
 <!--h1 id = "peakContainer">Peak: <span id = "peak"></span></h1-->
 <div id = "game">
 
 </div>
+<div id = "placed"></div>
 <div class = "borderWall"></div>
 <div class = "bwleft"></div>
 <div class = "bwbottom"></div>
+<div style = "display: none; position: absolute; top: 200; left: 100" id = "demo"></div>
 <button id = "resume" onclick = "resume()">Pause/Resume</button>
 <script>
+
+/*
+What if we add .empty-box elements
+
+*/
+
 var gameWidth = 360;
 var clockInt = 400; //Decrease to make game more difficult
 var line = `<div class = "line piece">
+  <div style = "bottom: -90" class = "box"></div>
+  <div style = "bottom: -60" class = "box"></div>
+  <div style = "bottom: -30" class = "box"></div>
   <div style = "bottom: 0" class = "box"></div>
-  <div style = "bottom: 30" class = "box"></div>
-  <div style = "bottom: 60" class = "box"></div>
-  <div style = "bottom: 90" class = "box"></div>
 </div>`
 /*
 360 = 30 * 12
@@ -58,31 +67,63 @@ var rightElbow = `<div class = "rightElbow piece">
   <div style = "position: absolute; background-color: orange; left: 30; bottom: 60" class = "box"></div>
 </div>`
 var leftElbow = `<div class = "LeftElbow piece">
-  <div style = "position: absolute; background-color: purple; left: 0; bottom: 0" class = "box"></div>
-  <div style = "position: absolute; background-color: purple; left: 0; bottom: 30" class = "box"></div>
+  <div style = "position: absolute; background-color: purple; left: 30; bottom: 0" class = "box"></div>
+  <div style = "position: absolute; background-color: purple; left: 30; bottom: 30" class = "box"></div>
+  <div style = "position: absolute; background-color: purple; left: 30; bottom: 60" class = "box"></div>
   <div style = "position: absolute; background-color: purple; left: 0; bottom: 60" class = "box"></div>
-  <div style = "position: absolute; background-color: purple; left: -30; bottom: 60" class = "box"></div>
 </div>`
 var pieces = [{template: line}, {template: pointy},{template: cube},{template: rightElbow},{template: leftElbow}]
-var placed = []
-function stop(){
-  /*
-  for(i = 0; i < document.getElementsByClassName('parked').length; i++){
-    for(a = 1; a < 5; a++){
-        if( document.getElementsByClassName('box')[ document.getElementsByClassName('box').length - a].style.left ==  document.getElementsByClassName('box')[i].style.left){
-          console.log( "Y Axis match")
-          if(document.getElementsByClassName('box')[ document.getElementsByClassName('box').length - a].style.top + 30 >=  document.getElementsByClassName('box')[i].style.top  ){
-            console.log("Height match")
-          return true
-        }
-      }
+/*
+If line is at 0 or 180, when it stops it occupies 1x4
+If line is at 90 or 720 it occupies 4x1
 
+
+*/
+
+
+var placed = []
+function getOffset( el ) {
+    var _x = 0;
+    var _y = 0;
+    while( el && !isNaN( el.offsetLeft ) && !isNaN( el.offsetTop ) ) {
+        _x += el.offsetLeft - el.scrollLeft;
+        _y += el.offsetTop - el.scrollTop;
+        el = el.offsetParent;
     }
-  }*/
+    return { top: _y, left: _x };
 }
+function stop(){
+
+  var numBoxes = document.getElementsByClassName('box').length;
+var o1 =  getOffset(document.getElementsByClassName('box')[numBoxes - 1]).top + 30
+var o2 =  getOffset(document.getElementsByClassName('box')[numBoxes - 2]).top + 30
+var o3 =  getOffset(document.getElementsByClassName('box')[numBoxes - 3]).top + 30
+var o4 =  getOffset(document.getElementsByClassName('box')[numBoxes - 4]).top + 30
+var o1l =  getOffset(document.getElementsByClassName('box')[numBoxes - 1]).left
+var o2l =  getOffset(document.getElementsByClassName('box')[numBoxes - 2]).left
+var o3l =  getOffset(document.getElementsByClassName('box')[numBoxes - 3]).left
+var o4l =  getOffset(document.getElementsByClassName('box')[numBoxes - 4]).left
+  for(i = 0; i < document.getElementsByClassName('box').length - 4; i++){
+    if( getOffset(document.getElementsByClassName('box')[i]).left == o1l || getOffset(document.getElementsByClassName('box')[i]).left == o2l || getOffset(document.getElementsByClassName('box')[i]).left == o3l || getOffset(document.getElementsByClassName('box')[i]).left == o4l){
+console.log("X-axis match")
+if( getOffset(document.getElementsByClassName('box')[i]).top <= o1 || getOffset(document.getElementsByClassName('box')[i]).top <= o2 || getOffset(document.getElementsByClassName('box')[i]).top <= o3 || getOffset(document.getElementsByClassName('box')[i]).top <= o4){
+  console.log("Y-axis match")
+  return true
+}
+}
+
+  }
+}
+function displayPieces(i){
+  if(i + 1 > pieces.length){i = 0}
+  document.getElementById('demo').innerHTML = `<div onclick = "displayPieces(${i + 1})">${pieces[i].template}</div>`
+
+}
+//displayPieces(0)
+
 function nextBlock(){
 
-
+//document.getElementById('placed').innerHTML = JSON.stringify(placed)
 var blocked = false
 
 var pieceN = Math.floor(Math.random() * pieces.length)
@@ -92,46 +133,55 @@ placed[placed.length - 1].top = -30;
 placed[placed.length - 1].left = 80;
 
 document.getElementById('game').innerHTML = document.getElementById('game').innerHTML +  pieces[pieceN].template
-//console.log(document.getElementsByClassName('piece').length)
+var current = document.getElementsByClassName('piece')[document.getElementsByClassName('piece').length - 1]
+var numBoxes = document.getElementsByClassName('box').length;
+ placed[placed.length - 1].rotation = 0;
 var test = setInterval(function(){
   ///Detect overlap in next move
-  ///
-  if(placed[placed.length - 1].top <= 30 ||(placed[placed.length - 1].top > 30 && !stop() && placed[placed.length - 1].top < 500)){ /// Define blocked
-  placed[placed.length - 1].top = placed[placed.length - 1].top + 30
-}else{
-  // BUG: Close interval
-  $('.piece:last').children("div").addClass( "parked");
-  clearInterval(test);
-  nextBlock()
+if(stop()){
+  console.log("Next block")
+    clearInterval(test);
+    nextBlock()
 }
-document.getElementsByClassName('piece')[document.getElementsByClassName('piece').length - 1].style.top =  placed[placed.length - 1].top
-var current = document.getElementsByClassName('piece')[document.getElementsByClassName('piece').length - 1]
-var rotation = 0;
+else  if(getOffset(document.getElementsByClassName('box')[numBoxes - 1]).top + 30 > 500 || getOffset(document.getElementsByClassName('box')[numBoxes - 2]).top + 30 > 500 || getOffset(document.getElementsByClassName('box')[numBoxes - 3]).top + 30 > 500 || getOffset(document.getElementsByClassName('box')[numBoxes - 4]).top + 30 > 500){
+    console.log("Next block")
+      clearInterval(test);
+      nextBlock()
+  }else{
+    //console.log("Offset: " +  (getOffset(document.getElementsByClassName('box')[numBoxes - 1]).top + 30))
+    placed[placed.length - 1].top = placed[placed.length - 1].top + 30
+    document.getElementsByClassName('piece')[document.getElementsByClassName('piece').length - 1].style.top =  placed[placed.length - 1].top
+  }
+  ////
 $(document).keydown(function(e) {
     switch(e.which) {
         case 37: // left
-        if( placed[placed.length - 1].left > 30){
-         placed[placed.length - 1].left = placed[placed.length - 1].left - 30
+        if( parseInt(current.style.left.split("px")[0]) > 30){
+         placed[placed.length - 1].left =  parseInt(current.style.left.split("px")[0]) - 15
       }else{
          placed[placed.length - 1].left = 0
       }
-      current.style.left = placed[placed.length - 1].left;
+      current.style.left = placed[placed.length - 1].left + "px";
 
         break;
 
         case 38: // up
-        rotation = rotation - 90;
+          placed[placed.length - 1].rotation =   placed[placed.length - 1].rotation - 90;
 
-        current.style.transform = `rotate(${rotation}deg)`
+        current.style.transform = `rotate(${  placed[placed.length - 1].rotation}deg)`
         break;
 
         case 39: // right
-        if( placed[placed.length - 1].left < 365){
-         placed[placed.length - 1].left =  placed[placed.length - 1].left + 30;
-      }else{
-         placed[placed.length - 1].left = 365
-      }
-            current.style.left = placed[placed.length - 1].left;
+      //  if(  parseInt(current.style.left.split("px")[0]) < 330){
+      if(parseInt(current.style.left.split("px")[0]) + 15 < 360){
+         placed[placed.length - 1].left =  parseInt(current.style.left.split("px")[0]) + 15
+       }else{
+          placed[placed.length - 1].left = 360
+       }
+  //    }else{
+        // placed[placed.length - 1].left = 360
+    //  }
+      current.style.left = placed[placed.length - 1].left + "px";
         break;
 
         case 40: // down
