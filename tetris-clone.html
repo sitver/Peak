@@ -82,10 +82,10 @@ var rightElbow90 = `<div class = "rightElbow piece">
   <div style = "position: absolute; background-color: orange; bottom: 30; left: 60" class = "box"></div>
 </div>`
 var leftElbow = `<div class = "LeftElbow piece">
-  <div style = "position: absolute; background-color: purple; left: 30; bottom: 0" class = "box"></div>
-  <div style = "position: absolute; background-color: purple; left: 30; bottom: 30" class = "box"></div>
-  <div style = "position: absolute; background-color: purple; left: 30; bottom: 60" class = "box"></div>
+  <div style = "position: absolute; background-color: purple; left: 0; bottom: 0" class = "box"></div>
+  <div style = "position: absolute; background-color: purple; left: 0; bottom: 30" class = "box"></div>
   <div style = "position: absolute; background-color: purple; left: 0; bottom: 60" class = "box"></div>
+  <div style = "position: absolute; background-color: purple; left: -30; bottom: 60" class = "box"></div>
 </div>`
 var leftElbow90 = `<div class = "LeftElbow piece">
   <div style = "position: absolute; background-color: purple; bottom: 30; left: -30" class = "box"></div>
@@ -126,7 +126,7 @@ var o3l =  getOffset(document.getElementsByClassName('box')[numBoxes - 3]).left 
 var o4l =  getOffset(document.getElementsByClassName('box')[numBoxes - 4]).left + 30
   for(i = 0; i < document.getElementsByClassName('box').length - 4; i++){
     if( getOffset(document.getElementsByClassName('box')[i]).left == o1l || getOffset(document.getElementsByClassName('box')[i]).left == o2l || getOffset(document.getElementsByClassName('box')[i]).left == o3l || getOffset(document.getElementsByClassName('box')[i]).left == o4l){
-console.log("X-axis match")
+//console.log("X-axis match")
 if( getOffset(document.getElementsByClassName('box')[i]).top <= o1 || getOffset(document.getElementsByClassName('box')[i]).top <= o2 || getOffset(document.getElementsByClassName('box')[i]).top <= o3 || getOffset(document.getElementsByClassName('box')[i]).top <= o4){
   console.log("Y-axis match")
   if(getOffset(document.getElementsByClassName('box')[i]).top < 31){
@@ -183,16 +183,18 @@ else  if(getOffset(document.getElementsByClassName('box')[numBoxes - 1]).top + 3
     document.getElementsByClassName('piece')[document.getElementsByClassName('piece').length - 1].style.top =  placed[placed.length - 1].top
   }
   ////
+  var fired = false;
+  window.onkeyup = function(event) {
+      fired = false
+  }
 $(document).keydown(function(e) {
+  if(!fired) {
+    fired = true;
+    // do something
     switch(e.which) {
         case 37: // left
-        if( parseInt(current.style.left.split("px")[0]) > 30){
-         placed[placed.length - 1].left =  parseInt(current.style.left.split("px")[0]) - 15
-      }else{
-         placed[placed.length - 1].left = 0
-      }
-      current.style.left = placed[placed.length - 1].left + "px";
-
+        current.style.left = getOffset(current).left - 30
+        console.log("Moved to " + (getOffset(current).left - 30))
         break;
 
         case 38: // up
@@ -201,14 +203,8 @@ $(document).keydown(function(e) {
         break;
 
         case 39: // right
-
-      if(parseInt(current.style.left.split("px")[0]) + 15 < 360){
-         placed[placed.length - 1].left =  parseInt(current.style.left.split("px")[0]) + 15
-       }else{
-          placed[placed.length - 1].left = 360
-       }
-
-      current.style.left = placed[placed.length - 1].left + "px";
+        current.style.left = getOffset(current).left + 30
+        console.log("Moved to " + (getOffset(current).left + 30))
         break;
 
         case 40: // down
@@ -218,6 +214,7 @@ $(document).keydown(function(e) {
         break;
 
         default: return; // exit this handler for other keys
+    }
     }
     e.preventDefault(); // prevent the default action (scroll / move caret)
 });
