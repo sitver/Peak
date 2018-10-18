@@ -13,7 +13,7 @@
 .box { border-color: darkgreen; background-color: green; width: 30px; height: 30px;}
 .line {z-index: 200; position: absolute; top: -30; left: 80}
 .cube {z-index: 200; position: absolute; top: -30; left: 80}
-.pointy {z-index: 200; transform: rotate(90deg); position: absolute; top: -30; left: 80}
+.pointy {z-index: 200; position: absolute; top: -30; left: 80}
 .rightElbow {z-index: 200; position: absolute; top: -30; left: 80}
 .leftElbow {z-index: 200; position: absolute; top: -30; left: 80}
 .placed{position: absolute; right: 8; top: 5; top: 500!important}
@@ -39,20 +39,29 @@ What if we add .empty-box elements
 var gameWidth = 360;
 var clockInt = 400; //Decrease to make game more difficult
 var line = `<div class = "line piece">
-  <div style = "bottom: -90" class = "box"></div>
-  <div style = "bottom: -60" class = "box"></div>
-  <div style = "bottom: -30" class = "box"></div>
-  <div style = "bottom: 0" class = "box"></div>
+  <div style = "position: absolute; left: 0; bottom: 90" class = "box"></div>
+  <div style = "position: absolute; left: 0; bottom: 60" class = "box"></div>
+  <div style = "position: absolute; left: 0; bottom: 30" class = "box"></div>
+  <div style = "position: absolute; left: 0; bottom: 0" class = "box"></div>
 </div>`
-/*
-360 = 30 * 12
-500 = 30 * 16
-*/
+var line90 = `<div class = "line piece">
+  <div style = "position: absolute; left: 90; bottom: 0" class = "box"></div>
+  <div style = "position: absolute; left: 60; bottom: 0" class = "box"></div>
+  <div style = "position: absolute; left: 30; bottom: 0" class = "box"></div>
+  <div style = "position: absolute; left: 0; bottom: 0" class = "box"></div>
+</div>`
+
 var pointy = `<div class = "pointy piece">
   <div style = "position: absolute; background-color: red; left: 0; bottom: 0" class = "box"></div>
   <div style = "position: absolute; background-color: red; left: 30; bottom: 30" class = "box"></div>
   <div style = "position: absolute; background-color: red; left: 30; bottom: 0" class = "box"></div>
   <div style = "position: absolute; background-color: red; left: 60; bottom: 0" class = "box"></div>
+</div>`
+var pointy90 = `<div class = "pointy piece">
+  <div style = "position: absolute; background-color: red; bottom: 0; left: 0" class = "box"></div>
+  <div style = "position: absolute; background-color: red; bottom: 30; left: 30" class = "box"></div>
+  <div style = "position: absolute; background-color: red; bottom: 30; left: 0" class = "box"></div>
+  <div style = "position: absolute; background-color: red; bottom: 60; left: 0" class = "box"></div>
 </div>`
 var cube = `<div class = "cube piece">
   <div style = "position: absolute; background-color: blue; left: 0; bottom: 0" class = "box"></div>
@@ -66,13 +75,25 @@ var rightElbow = `<div class = "rightElbow piece">
   <div style = "position: absolute; background-color: orange; left: 0; bottom: 60" class = "box"></div>
   <div style = "position: absolute; background-color: orange; left: 30; bottom: 60" class = "box"></div>
 </div>`
+var rightElbow90 = `<div class = "rightElbow piece">
+  <div style = "position: absolute; background-color: orange; bottom: 0; left: 0" class = "box"></div>
+  <div style = "position: absolute; background-color: orange; bottom: 0; left: 30" class = "box"></div>
+  <div style = "position: absolute; background-color: orange; bottom: 0; left: 60" class = "box"></div>
+  <div style = "position: absolute; background-color: orange; bottom: 30; left: 60" class = "box"></div>
+</div>`
 var leftElbow = `<div class = "LeftElbow piece">
   <div style = "position: absolute; background-color: purple; left: 30; bottom: 0" class = "box"></div>
   <div style = "position: absolute; background-color: purple; left: 30; bottom: 30" class = "box"></div>
   <div style = "position: absolute; background-color: purple; left: 30; bottom: 60" class = "box"></div>
   <div style = "position: absolute; background-color: purple; left: 0; bottom: 60" class = "box"></div>
 </div>`
-var pieces = [{template: line}, {template: pointy},{template: cube},{template: rightElbow},{template: leftElbow}]
+var leftElbow90 = `<div class = "LeftElbow piece">
+  <div style = "position: absolute; background-color: purple; bottom: 30; left: -30" class = "box"></div>
+  <div style = "position: absolute; background-color: purple; bottom: 30; left: 0" class = "box"></div>
+  <div style = "position: absolute; background-color: purple; bottom: 30; left: 30" class = "box"></div>
+  <div style = "position: absolute; background-color: purple; bottom: 0; left: 30" class = "box"></div>
+</div>`
+var pieces = [{name: "line", template: line, t90: line90}, {name: "pointy", template: pointy, t90: pointy90},{name: "cube", template: cube, t90: cube},{name: "rightElbow", template: rightElbow, t90: rightElbow90},{name: "leftElbow", template: leftElbow, t90: leftElbow90}]
 /*
 If line is at 0 or 180, when it stops it occupies 1x4
 If line is at 90 or 720 it occupies 4x1
@@ -99,10 +120,10 @@ var o1 =  getOffset(document.getElementsByClassName('box')[numBoxes - 1]).top + 
 var o2 =  getOffset(document.getElementsByClassName('box')[numBoxes - 2]).top + 30
 var o3 =  getOffset(document.getElementsByClassName('box')[numBoxes - 3]).top + 30
 var o4 =  getOffset(document.getElementsByClassName('box')[numBoxes - 4]).top + 30
-var o1l =  getOffset(document.getElementsByClassName('box')[numBoxes - 1]).left
-var o2l =  getOffset(document.getElementsByClassName('box')[numBoxes - 2]).left
-var o3l =  getOffset(document.getElementsByClassName('box')[numBoxes - 3]).left
-var o4l =  getOffset(document.getElementsByClassName('box')[numBoxes - 4]).left
+var o1l =  getOffset(document.getElementsByClassName('box')[numBoxes - 1]).left + 30
+var o2l =  getOffset(document.getElementsByClassName('box')[numBoxes - 2]).left + 30
+var o3l =  getOffset(document.getElementsByClassName('box')[numBoxes - 3]).left + 30
+var o4l =  getOffset(document.getElementsByClassName('box')[numBoxes - 4]).left + 30
   for(i = 0; i < document.getElementsByClassName('box').length - 4; i++){
     if( getOffset(document.getElementsByClassName('box')[i]).left == o1l || getOffset(document.getElementsByClassName('box')[i]).left == o2l || getOffset(document.getElementsByClassName('box')[i]).left == o3l || getOffset(document.getElementsByClassName('box')[i]).left == o4l){
 console.log("X-axis match")
@@ -133,7 +154,7 @@ var blocked = false
 
 var pieceN = Math.floor(Math.random() * pieces.length)
 var piece = pieces[pieceN]
-placed[placed.length] = {template: piece.template }
+placed[placed.length] = {template: piece.template , type: piece.name, t90: piece.t90}
 placed[placed.length - 1].top = -30;
 placed[placed.length - 1].left = 80;
 
@@ -175,21 +196,18 @@ $(document).keydown(function(e) {
         break;
 
         case 38: // up
-          placed[placed.length - 1].rotation =   placed[placed.length - 1].rotation - 90;
-
-        current.style.transform = `rotate(${  placed[placed.length - 1].rotation}deg)`
+        current.innerHTML = placed[placed.length - 1]["t90"]
+        //placed[placed.length - 1].rotation = 90
         break;
 
         case 39: // right
-      //  if(  parseInt(current.style.left.split("px")[0]) < 330){
+
       if(parseInt(current.style.left.split("px")[0]) + 15 < 360){
          placed[placed.length - 1].left =  parseInt(current.style.left.split("px")[0]) + 15
        }else{
           placed[placed.length - 1].left = 360
        }
-  //    }else{
-        // placed[placed.length - 1].left = 360
-    //  }
+
       current.style.left = placed[placed.length - 1].left + "px";
         break;
 
