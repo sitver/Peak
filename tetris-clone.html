@@ -108,7 +108,12 @@ var o4l =  getOffset(document.getElementsByClassName('box')[numBoxes - 4]).left
 console.log("X-axis match")
 if( getOffset(document.getElementsByClassName('box')[i]).top <= o1 || getOffset(document.getElementsByClassName('box')[i]).top <= o2 || getOffset(document.getElementsByClassName('box')[i]).top <= o3 || getOffset(document.getElementsByClassName('box')[i]).top <= o4){
   console.log("Y-axis match")
-  return true
+  if(getOffset(document.getElementsByClassName('box')[i]).top < 31){
+    console.log("Game over")
+    return "over"
+  }else{
+    return true
+  }
 }
 }
 
@@ -138,17 +143,21 @@ var numBoxes = document.getElementsByClassName('box').length;
  placed[placed.length - 1].rotation = 0;
 var test = setInterval(function(){
   ///Detect overlap in next move
-if(stop()){
+  var status = stop()
+if(status && status != "over"){
   console.log("Next block")
     clearInterval(test);
     nextBlock()
+}else if(status == "over"){
+    clearInterval(test);
+    document.getElementById('game').innerHTML = ""
 }
 else  if(getOffset(document.getElementsByClassName('box')[numBoxes - 1]).top + 30 > 500 || getOffset(document.getElementsByClassName('box')[numBoxes - 2]).top + 30 > 500 || getOffset(document.getElementsByClassName('box')[numBoxes - 3]).top + 30 > 500 || getOffset(document.getElementsByClassName('box')[numBoxes - 4]).top + 30 > 500){
     console.log("Next block")
       clearInterval(test);
       nextBlock()
   }else{
-    //console.log("Offset: " +  (getOffset(document.getElementsByClassName('box')[numBoxes - 1]).top + 30))
+
     placed[placed.length - 1].top = placed[placed.length - 1].top + 30
     document.getElementsByClassName('piece')[document.getElementsByClassName('piece').length - 1].style.top =  placed[placed.length - 1].top
   }
